@@ -1,0 +1,68 @@
+# ===== Python =====
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+.Python
+*$py.class
+
+# ===== Virtual Environments =====
+venv/
+env/
+.venv/
+ENV/
+
+# ===== Build / Distribution =====
+build/
+dist/
+sdist/
+develop-eggs/
+eggs/
+.eggs/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+.cache/
+
+# ===== Environment / Secrets =====
+.env
+.env.*
+apikey.env
+
+# ===== Databases =====
+*.db
+*.sqlite
+*.sqlite3
+
+# ===== Logs =====
+*.log
+logs/
+
+# ===== Temporary Files =====
+temp/
+tmp/
+
+# ===== Screenshots =====
+screenshots/*
+!screenshots/.gitkeep
+
+# ===== IDE / Editor =====
+.vscode/
+.idea/
+*.swp
+*.swo
+*.sublime-*
+
+# ===== OS =====
+.DS_Store
+Thumbs.db
+*.bak
+
+# ===== Cloud / Platform =====
+project.gcloudignore
+
+feature_extractor_backup.py
+admin_config.json
+admin_users.json

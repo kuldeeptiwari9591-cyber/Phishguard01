@@ -1,0 +1,63 @@
+═══════════════════════════════════════════════════════════
+  PHISHGUARD ADMIN PANEL - DEFAULT LOGIN CREDENTIALS
+═══════════════════════════════════════════════════════════
+
+🔑 DEFAULT CREDENTIALS (work immediately, no setup needed):
+
+   Username:  Kuldeep9399
+   Password:  kuldeep@9399
+
+⚠️  CASE-SENSITIVE - type exactly as shown above
+
+───────────────────────────────────────────────────────────
+
+📍 LOGIN URLS:
+
+   Local:   http://localhost:5000/admin/login
+   Render:  https://yourapp.onrender.com/admin/login
+
+───────────────────────────────────────────────────────────
+
+✅ FIXED ISSUES:
+
+1. Flask secret key now uses STABLE default
+   → Sessions won't expire on Render restart anymore
+
+2. Hardcoded credentials always work as fallback
+   → No more "invalid credentials" errors
+
+3. Debug logging added
+   → Check Render logs to see exactly what's happening
+
+───────────────────────────────────────────────────────────
+
+🚀 DEPLOYMENT STEPS:
+
+1. Push to GitHub:
+   git add .
+   git commit -m "Fix admin auth + add stable credentials"
+   git push
+
+2. Render will auto-deploy
+
+3. Go to: https://yourapp.onrender.com/admin/login
+
+4. Login with: Kuldeep9399 / kuldeep@9399
+
+───────────────────────────────────────────────────────────
+
+🔧 OPTIONAL - Custom credentials via Render env vars:
+
+   ADMIN_USERNAME  =  yourcustomusername
+   ADMIN_PASSWORD  =  yourcustompassword
+
+   (If set, these override the defaults)
+
+───────────────────────────────────────────────────────────
+
+📋 FILES CHANGED IN THIS VERSION:
+
+   ✓ app.py           → Fixed secret_key (stable default)
+   ✓ admin_routes.py  → Hardcoded credentials + debug logs
+
+═══════════════════════════════════════════════════════════
