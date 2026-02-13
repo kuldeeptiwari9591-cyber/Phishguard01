@@ -358,6 +358,24 @@ function sanitizeHTML(str) {
 }
 
 /**
+ * Format API result (handles objects and strings)
+ */
+function formatApiResult(result) {
+    if (typeof result === 'string') return sanitizeHTML(result);
+    if (typeof result === 'object' && result !== null) {
+        // Extract meaningful info from object
+        if (result.status) return sanitizeHTML(result.status);
+        if (result.threat_type) return sanitizeHTML(result.threat_type);
+        if (result.result) return sanitizeHTML(result.result);
+        if (result.clean !== undefined) return result.clean ? 'Clean ✓' : 'Threat Detected ⚠';
+        // Fallback: show first useful property
+        const keys = Object.keys(result);
+        if (keys.length > 0) return sanitizeHTML(String(result[keys[0]]));
+    }
+    return 'No data';
+}
+
+/**
  * Truncate URL for display
  */
 function truncateURL(url, maxLength = 50) {
@@ -720,8 +738,8 @@ function renderTechnicalSummary(data, theme) {
                             <i class="fas fa-shield-alt"></i> Security Engines
                         </h4>
                         <div style="font-size: 0.85rem; line-height: 1.6;">
-                            ${apiResults.google_safe_browsing ? `<div>Google: <strong>${sanitizeHTML(apiResults.google_safe_browsing)}</strong></div>` : ''}
-                            ${apiResults.virustotal ? `<div>VirusTotal: <strong>${sanitizeHTML(apiResults.virustotal)}</strong></div>` : ''}
+                            ${apiResults.google_safe_browsing ? `<div>Google: <strong>${formatApiResult(apiResults.google_safe_browsing)}</strong></div>` : ''}
+                            ${apiResults.virustotal ? `<div>VirusTotal: <strong>${formatApiResult(apiResults.virustotal)}</strong></div>` : ''}
                         </div>
                     </div>
                 ` : ''}

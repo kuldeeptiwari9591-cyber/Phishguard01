@@ -684,6 +684,13 @@ window.addEventListener('DOMContentLoaded', async () => {
     const u = data.username || 'Admin';
     document.getElementById('adminName').textContent = u;
     document.getElementById('adminAvatar').textContent = u[0].toUpperCase();
+    
+    // Show super admin menu items if super admin
+    if (sessionStorage.getItem('admin_role') === 'super_admin') {
+      document.getElementById('superAdminNav').style.display = 'block';
+      document.getElementById('navManageAdmins').style.display = 'flex';
+      document.getElementById('navApiControl').style.display = 'flex';
+    }
   } catch(e) { window.location.href='/admin/login'; return; }
   loadDashboard();
 });
@@ -1116,31 +1123,7 @@ function showToast(msg) {
 
 
 // ═══ SUPER ADMIN FEATURES ═════════════════════════════════
-window.addEventListener('DOMContentLoaded', async () => {
-  // ... existing DOMContentLoaded code ...
-  
-  // Check if user is super admin
-  try {
-    const res = await fetch('/admin/api/me');
-    const data = await res.json();
-    if (data.logged_in) {
-      const u = data.username || 'Admin';
-      document.getElementById('adminName').textContent = u;
-      document.getElementById('adminAvatar').textContent = u[0].toUpperCase();
-      
-      // Show super admin menu items if super admin
-      if (sessionStorage.getItem('admin_role') === 'super_admin') {
-        document.getElementById('superAdminNav').style.display = 'block';
-        document.getElementById('navManageAdmins').style.display = 'flex';
-        document.getElementById('navApiControl').style.display = 'flex';
-      }
-    } else {
-      window.location.href='/admin/login';
-    }
-  } catch(e) {
-    window.location.href='/admin/login';
-  }
-});
+// (Auth check moved to main DOMContentLoaded above)
 
 // Update switchPanel to add super admin panels
 const originalSwitchPanel = switchPanel;
