@@ -1160,7 +1160,7 @@ async function loadManageAdmins() {
             <button class="action-btn" onclick="toggleAdmin('${esc(a.username)}')" style="margin-right:6px">
               ${a.active?'Disable':'Enable'}
             </button>
-            <button class="action-btn" onclick="deleteAdmin('${esc(a.username)')}" style="border-color:var(--red);color:var(--red)">
+            <button class="action-btn" onclick="deleteAdmin('${esc(a.username)}')}" style="border-color:var(--red);color:var(--red)">
               Delete
             </button>
           ` : '<span style="color:var(--text3);font-size:12px">Protected</span>'}
