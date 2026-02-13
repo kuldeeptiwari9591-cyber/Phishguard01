@@ -244,6 +244,10 @@
         const data = await res.json();
 
         if (data.success) {
+          // Save admin role for super admin features
+          if (data.role) {
+            sessionStorage.setItem('admin_role', data.role);
+          }
           window.location.href = '/admin/dashboard';
         } else {
           showError(data.error || 'Invalid credentials. Please try again.');
