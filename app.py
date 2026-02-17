@@ -38,7 +38,7 @@ CORS(app)
 # ─── SESSION CONFIGURATION ────────────────────────────────────────────────────
 # Use a stable secret key from env, or generate a random one for this process.
 app.secret_key = os.getenv('FLASK_SECRET_KEY', 'phishguard_default_secret_key_CHANGE_IN_PRODUCTION_2024')
-app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(hours=8)
+app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(minutes=30)
 app.config['SESSION_COOKIE_HTTPONLY'] = True
 app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
 

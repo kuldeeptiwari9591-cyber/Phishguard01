@@ -272,7 +272,11 @@ def admin_logout():
 @admin_bp.route('/api/me', methods=['GET'])
 def admin_me():
     if session.get('admin_logged_in'):
-        return jsonify({'logged_in': True, 'username': session.get('admin_user')})
+        return jsonify({
+            'logged_in': True,
+            'username': session.get('admin_user'),
+            'role': session.get('admin_role', 'admin')
+        })
     return jsonify({'logged_in': False})
 
 
