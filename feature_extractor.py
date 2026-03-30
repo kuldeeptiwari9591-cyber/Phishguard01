@@ -1068,6 +1068,84 @@ class AdvancedPhishingDetector:
 
     # ==================== HEURISTIC ANALYSIS ====================
     
+    # ==================== TYPOSQUATTING DETECTION ====================
+
+    # Major brand domains to protect against impersonation
+    BRAND_LIST = [
+        'google', 'facebook', 'paypal', 'amazon', 'apple', 'microsoft',
+        'netflix', 'instagram', 'twitter', 'linkedin', 'youtube', 'ebay',
+        'bankofamerica', 'chase', 'wellsfargo', 'citibank', 'hsbc',
+        'dropbox', 'gmail', 'outlook', 'yahoo', 'whatsapp', 'telegram',
+        'coinbase', 'binance', 'steam', 'adobe', 'spotify'
+    ]
+
+    # Noise suffixes attackers add to hijack brand names (e.g. paypal-login.com)
+    _BRAND_NOISE = [
+        '-secure', '-login', '-verify', '-update', '-account',
+        '-support', '-help', '-official', '-signin', '-online'
+    ]
+
+    def _check_typosquatting(self, domain: str, extracted) -> Optional[str]:
+        """
+        Detect brand impersonation via typosquatting using Levenshtein distance
+        and character-substitution normalization.
+        Returns the impersonated brand name if detected, else None.
+        """
+        candidate = extracted.domain.lower()
+
+        # Exact match with a real brand → it IS the real domain, not phishing
+        if candidate in self.BRAND_LIST:
+            return None
+
+        # Strip common noise suffixes (paypal-login → paypal)
+        stripped = candidate
+        for noise in self._BRAND_NOISE:
+            stripped = stripped.replace(noise, '')
+
+        # If stripping reveals an exact brand name, it's impersonation
+        if stripped in self.BRAND_LIST and stripped != candidate:
+            return stripped
+
+        # Levenshtein distance ≤ 2 catches single typos / transpositions
+        for brand in self.BRAND_LIST:
+            if candidate == brand:
+                continue
+            if self._levenshtein(candidate, brand) <= 2 and len(candidate) >= 4:
+                return brand
+
+        # Character-substitution normalization (0→o, 1→l, 3→e, 5→s)
+        normalized = (candidate
+                      .replace('0', 'o')
+                      .replace('1', 'l')
+                      .replace('3', 'e')
+                      .replace('@', 'a')
+                      .replace('5', 's'))
+        for brand in self.BRAND_LIST:
+            if brand in normalized and candidate != brand:
+                return brand
+
+        return None
+
+    @staticmethod
+    def _levenshtein(s1: str, s2: str) -> int:
+        """Compute Levenshtein edit distance between two strings."""
+        if len(s1) < len(s2):
+            return AdvancedPhishingDetector._levenshtein(s2, s1)
+        if len(s2) == 0:
+            return len(s1)
+        previous_row = range(len(s2) + 1)
+        for i, c1 in enumerate(s1):
+            current_row = [i + 1]
+            for j, c2 in enumerate(s2):
+                insertions = previous_row[j + 1] + 1
+                deletions = current_row[j] + 1
+                substitutions = previous_row[j] + (c1 != c2)
+                current_row.append(min(insertions, deletions, substitutions))
+            previous_row = current_row
+        return previous_row[-1]
+
+    # ==================== HEURISTIC ANALYSIS ====================
+
     def _perform_heuristics(self, url: str, extracted, features: Dict):
         """Perform heuristic checks on URL"""
         risk_score = 0
@@ -1078,7 +1156,18 @@ class AdvancedPhishingDetector:
         # Get technical data
         tech = features['technical_summary']
         signals = features['detected_signals']
-        
+
+        # 0. URL length check (report Unit Test UT_PG_03)
+        url_length = len(url)
+        if url_length > 75:
+            risk_score += 10
+            signals['long_url'] = True
+            features['why_dangerous'].append(
+                f"⚠️ Unusually long URL ({url_length} characters)"
+            )
+        else:
+            features['why_safe'].append(f"✓ Normal URL length ({url_length} characters)")
+
         # 1. Domain age check
         domain_age = tech.get('domain_age_days')
         if isinstance(domain_age, int):
@@ -1184,7 +1273,16 @@ class AdvancedPhishingDetector:
             risk_score += 25
             signals['homograph_attack'] = True
             features['why_dangerous'].append("⚠️ Possible homograph/lookalike domain attack")
-        
+
+        # 13. Typosquatting / brand impersonation (Levenshtein-based)
+        impersonated_brand = self._check_typosquatting(domain, extracted)
+        if impersonated_brand:
+            risk_score += 60
+            signals['typosquatting'] = True
+            features['why_dangerous'].append(
+                f"⚠️ Possible brand impersonation — looks like '{impersonated_brand}'"
+            )
+
         # Update risk score
         features['risk_score'] = min(risk_score, 100)
 
@@ -1380,6 +1478,7 @@ class AdvancedPhishingDetector:
             "detected_signals": {
                 "new_domain": False,
                 "typosquatting": False,
+                "long_url": False,
                 "blacklist_hit": False,
                 "https": False,
                 "ip_usage": False,

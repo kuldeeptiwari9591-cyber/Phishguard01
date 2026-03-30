@@ -35,6 +35,34 @@ logger = logging.getLogger(__name__)
 app = Flask(__name__)
 CORS(app)
 
+# ── TLS / Transport-Layer Security headers ────────────────────────────────────
+# These headers enforce encrypted communications and protect against common
+# web attacks (MITM, clickjacking, MIME-sniffing, XSS).
+@app.after_request
+def apply_tls_security_headers(response):
+    # Force HTTPS for 1 year; include subdomains
+    response.headers['Strict-Transport-Security'] = (
+        'max-age=31536000; includeSubDomains'
+    )
+    # Prevent the page from being embedded in iframes (clickjacking)
+    response.headers['X-Frame-Options'] = 'DENY'
+    # Stop browsers from MIME-sniffing the content type
+    response.headers['X-Content-Type-Options'] = 'nosniff'
+    # Enable browser XSS filter
+    response.headers['X-XSS-Protection'] = '1; mode=block'
+    # Restrict information sent in Referer header
+    response.headers['Referrer-Policy'] = 'strict-origin-when-cross-origin'
+    # Content Security Policy – allow only same-origin resources
+    response.headers['Content-Security-Policy'] = (
+        "default-src 'self'; "
+        "script-src 'self' 'unsafe-inline'; "
+        "style-src 'self' 'unsafe-inline'; "
+        "img-src 'self' data:; "
+        "connect-src 'self'"
+    )
+    return response
+# ─────────────────────────────────────────────────────────────────────────────
+
 # ─── SESSION CONFIGURATION ────────────────────────────────────────────────────
 # Use a stable secret key from env, or generate a random one for this process.
 app.secret_key = os.getenv('FLASK_SECRET_KEY', 'phishguard_default_secret_key_CHANGE_IN_PRODUCTION_2024')
