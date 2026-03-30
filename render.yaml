@@ -11,13 +11,6 @@ services:
         value: 3.11.0
       - key: PORT
         value: 10000
-      # ── Admin Panel ──────────────────────────────
-      - key: FLASK_SECRET_KEY
-        sync: false          # Set manually in Render dashboard
-      - key: ADMIN_USERNAME
-        sync: false
-      - key: ADMIN_PASSWORD_HASH
-        sync: false
       # ── Database ────────────────────────────────
       - key: MONGO_URI
         sync: false

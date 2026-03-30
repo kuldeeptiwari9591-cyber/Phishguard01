@@ -67,15 +67,6 @@ else:
 # Initialize detector
 detector = AdvancedPhishingDetector(whois_api_key=os.getenv('WHOISXML_API_KEY'))
 
-# ─── ADMIN BLUEPRINT ──────────────────────────────────────────────────────────
-from admin_routes import admin_bp
-app.register_blueprint(admin_bp)
-
-# Inject shared resources into app config so admin blueprint can reach them
-app.config['DB'] = db
-app.config['SCREENSHOT_DIR'] = SCREENSHOT_DIR
-
-# ============================================================================
 # STATIC FILE ROUTES
 # ============================================================================
 
@@ -549,23 +540,12 @@ def health_check():
 # ============================================================================
 
 
-@app.route('/admin')
-def admin_redirect():
-    """Redirect /admin to login or dashboard based on session."""
-    from flask import session
-    if session.get('admin_logged_in'):
-        return redirect('/admin/dashboard')
-    return redirect('/admin/login')
 
 
 @app.errorhandler(404)
 def page_not_found(e):
     """Handle 404 errors - only redirect unknown paths, not admin/api/static."""
     path = request.path
-    
-    # Let admin routes fail properly (blueprint handles them)
-    if path.startswith('/admin'):
-        return jsonify({'error': 'Admin route not found'}), 404
     
     # Let API routes fail properly
     if path.startswith('/api'):
